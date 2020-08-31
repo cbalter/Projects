@@ -19,3 +19,36 @@ jazz <- function(){
 
 
 jazz() # returns the number of predicted wins this season
+
+
+
+Step 2
+```{r}
+n_reps <- 10000
+first_sim <- replicate(n_reps, jazz()) # replicating this season 10000 times
+```
+
+Step 3
+```{r}
+win_60 <- function() {
+prediction <- vector()
+  for (i in 1:length(first_sim)) {
+prediction[i] <- (first_sim[i] >= 60) # was the simulated total season wins greater than 60
+  }
+result <- sum(prediction) / n_reps # out of these 10000 simulations, what is the probability that the jazz won 60 or more games. Adding up all the trues and dividing by total sims
+  return(result)
+}
+
+
+win_60() # the liklihood that the jazz win at least 60 games this season
+```
+
+Step 4
+```{r}
+p_hat <- win_60()
+n <- n_reps
+alpha <- 0.05
+
+"Lower     Estimate     Upper" 
+(ci <- p_hat + c(-1,0, 1) * qnorm(1 - alpha/2) * sqrt(p_hat * (1 - p_hat) / n))
+```
