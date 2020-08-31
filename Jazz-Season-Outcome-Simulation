@@ -1,0 +1,21 @@
+schedule <- read.csv("/cloud/project/jazz-schedule.csv", header = TRUE)
+
+win <- c(TRUE, FALSE)
+
+jazz <- function(){
+  wp_a <- .690 # wp_a is the win percentage for team a
+  wp_b <- vector()
+  for(i in 1:nrow(schedule)) {
+    wp_b[i] <- schedule[i,2] / (schedule[i,2] + schedule[i,3]) # this produces each of the other teams win percentage
+  }
+  p_a <- (wp_a * (1 - wp_b)) / ((wp_a * (1 - wp_b)) + (wp_b * (1 - wp_a))) # calculating the probability that the jazz will win for each game
+  new_p_a <- as.data.frame(p_a)
+  wins <- vector()
+  for (i in 1:nrow(new_p_a)) {
+    wins[i] <- sample(win, size = 1, prob = c(new_p_a[i,], (1 - new_p_a[i,]))) # prob is the probability of winning and then losing (1-probability of winning) given by p_a
+  }
+  return(29 + sum(wins)) # there are 82 games per season. Adding 29 current winnings to predicted number
+  }
+
+
+jazz() # returns the number of predicted wins this season
