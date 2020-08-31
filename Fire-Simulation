@@ -1,0 +1,65 @@
+wild_fire <- function(p, total_trees, burning) {
+  catching_on_fire <- 1 # this starts my while loop
+  danger_zone <- 1
+  burning <- c(burning)
+  while (sum(burning) != total_trees | danger_zone != 0 | sum(catching_on_fire) != 0){ # keep building a vector of burning trees until one of these are satisfied
+  danger_zone <- sum(as.numeric(rgeom(burning, prob = 0.5)))
+      if (danger_zone == 0) { # i'm assuming that if no trees are in the danger zone, then the fire will die out.
+        return (sum(burning))
+    } 
+      else { # if there are trees in the dangerzone, this will give the ones that catch fire
+  catching_on_fire <- as.numeric(replicate(danger_zone, {sample(c(TRUE, FALSE), size = 1, replace = FALSE, prob = c(p, 1-p))}))} 
+      if (sum(catching_on_fire) == 0){ # also assuming that if none of the trees in the dangerzone catch fire, then the fire dies out.
+  return (sum(burning))
+     }
+      else {
+  burning <- append(burning, sum(catching_on_fire))}
+      if (sum(burning) >= total_trees){ # this would be the second case where the whole forest is consumed by fire. 
+  return (sum(burning))
+     } 
+      else {
+  burning <- append(burning, sum(catching_on_fire))
+     }
+  }
+}
+
+# this function will return one number representing the number of trees that will be burned in the forest
+# wild_fire(p = .3, burning = 1, total_trees = 1000)
+```
+
+Step 2
+```{r}
+n_reps <- 10000
+# the replication should give the number of trees burned per simulation
+sim_1 <- replicate(n_reps, (wild_fire(p = 0.9, burning = 1, total_trees = 1000)))
+sim_2 <- replicate(n_reps, (wild_fire(p = 0.4, burning = 6, total_trees = 1000)))
+```
+
+```{r}
+# because burning returns more trees than in the forest, i'm going to round them down to 1000
+new_sim_1 <- replace(sim_1, sim_1 > 1000, value = 1000)
+
+new_sim_2 <- replace(sim_2, sim_2 > 1000, value = 1000)
+```
+
+Step 3 
+```{r}
+x_bar <- mean(new_sim_1) # calculating the average number of trees burned per simulation
+x_bar_2 <- mean(new_sim_2)
+```
+
+Step 4
+```{r}
+sd_x <- sd(new_sim_1)
+sqrt_n <- sqrt(1000)
+alpha <- 0.05
+
+"Lower    Estimate   Upper" 
+(ci_sim_1 <- x_bar + c(-1,0, 1) * qnorm(1 - alpha/2) * sd_x / sqrt_n)
+
+sd_x_2 <- sd(new_sim_2)
+sqrt_n_2 <- sqrt(1000) # per simulation, not out of all the simulations
+
+"Lower    Estimate   Upper" 
+(ci_sim_2 <- x_bar_2 + c(-1,0, 1) * qnorm(1 - alpha/2) * sd_x_2 / sqrt_n)
+
